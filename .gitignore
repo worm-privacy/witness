@@ -1,0 +1,4 @@
+*.o
+*.dat
+proof_of_burn/proof_of_burn
+spend/spend
