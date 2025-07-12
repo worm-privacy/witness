@@ -2,6 +2,13 @@
 name = "worm-witness-gens"
 version = "0.1.0"
 edition = "2024"
+include = [
+    "rapidsnark-linux-x86_64-v0.0.7/**",
+    "Cargo.toml",
+    "spend/**",
+    "proof_of_burn/**",
+    "src/**"
+]
 
 [dependencies]
 anyhow = "1.0"
