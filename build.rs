@@ -11,6 +11,7 @@ fn main() {
     bindings
         .write_to_file(out_path.join("bindings.rs"))
         .expect("Couldn't write bindings!");
+    println!("cargo:rustc-link-lib=static=rapidsnark");
 
     println!("cargo::rerun-if-changed=proof_of_burn/*");
     println!("cargo::rerun-if-changed=spend/*");
