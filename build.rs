@@ -1,18 +1,28 @@
 use std::{env, path::PathBuf, process::Command};
 
 fn main() {
-    println!("cargo:rustc-link-search=./rapidsnark-linux-x86_64-v0.0.7/lib");
     let bindings = bindgen::Builder::default()
         .header("rapidsnark-linux-x86_64-v0.0.7/include/prover.h")
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         .generate()
         .expect("Unable to generate bindings");
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
+    std::fs::copy(
+        "rapidsnark-linux-x86_64-v0.0.7/lib/librapidsnark-fr-fq.a",
+        out_path.join("librapidsnark-fr-fq.a"),
+    )
+    .unwrap();
+    std::fs::copy(
+        "rapidsnark-linux-x86_64-v0.0.7/lib/librapidsnark.a",
+        out_path.join("librapidsnark.a"),
+    )
+    .unwrap();
     bindings
         .write_to_file(out_path.join("bindings.rs"))
         .expect("Couldn't write bindings!");
-    println!("cargo:rustc-link-lib=static=rapidsnark-fr-fq");
+    println!("cargo:rustc-link-search={}", out_path.display());
     println!("cargo:rustc-link-lib=static=rapidsnark");
+    println!("cargo:rustc-link-lib=static=rapidsnark-fr-fq");
 
     println!("cargo::rerun-if-changed=proof_of_burn/*");
     println!("cargo::rerun-if-changed=spend/*");
