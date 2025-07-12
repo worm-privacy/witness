@@ -10,7 +10,7 @@ ifeq ($(shell uname),Linux)
 	NASM=nasm -felf64
 endif
 	
-all: spend
+all: libspend.a
 	
 %.o: %.cpp $(DEPS_HPP)
 	$(CC) -c $< $(CFLAGS)
@@ -18,5 +18,5 @@ all: spend
 fr_asm.o: fr.asm
 	$(NASM) fr.asm -o fr_asm.o
 	
-spend: $(DEPS_O) spend.o
-	$(CC) -o spend *.o -lgmp 
+libspend.a: $(DEPS_O) spend.o
+	ar rcs libspend.a *.o -lgmp

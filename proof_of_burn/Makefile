@@ -10,7 +10,7 @@ ifeq ($(shell uname),Linux)
 	NASM=nasm -felf64
 endif
 	
-all: proof_of_burn
+all: libproof_of_burn.a
 	
 %.o: %.cpp $(DEPS_HPP)
 	$(CC) -c $< $(CFLAGS)
@@ -18,5 +18,6 @@ all: proof_of_burn
 fr_asm.o: fr.asm
 	$(NASM) fr.asm -o fr_asm.o
 	
-proof_of_burn: $(DEPS_O) proof_of_burn.o
-	$(CC) -o proof_of_burn *.o -lgmp 
+libproof_of_burn.a: $(DEPS_O) proof_of_burn.o
+	ar rcs libproof_of_burn.a *.o -lgmp
+

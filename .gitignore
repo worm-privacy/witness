@@ -1,4 +1,8 @@
 *.o
-*.dat
+*.a
 proof_of_burn/proof_of_burn
 spend/spend
+
+# Added by cargo
+
+/target

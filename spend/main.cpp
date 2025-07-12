@@ -27,7 +27,6 @@ Circom_Circuit* loadCircuit(std::string const &datFileName) {
 
     fd = open(datFileName.c_str(), O_RDONLY);
     if (fd == -1) {
-        std::cout << ".dat file not found: " << datFileName << "\n";
         throw std::system_error(errno, std::generic_category(), "open");
     }
     
@@ -195,8 +194,9 @@ json::value_t check_type(std::string prefix, json in){
     json::value_t t = check_type(prefix, in[0]);
     for (uint i = 1; i < in.size(); i++) {
       if (t != check_type(prefix, in[i])) {
-	fprintf(stderr, "Types are not the same in the the key %s\n",prefix.c_str());
-	assert(false);
+        std::ostringstream errStrStream;
+        errStrStream << "Types are not the same in the key " << prefix.c_str();
+        throw std::runtime_error(errStrStream.str());
       }
     }
     return t;
@@ -331,42 +331,32 @@ void writeBinWitness(Circom_CalcWit *ctx, std::string wtnsFileName) {
     fclose(write_ptr);
 }
 
-int main (int argc, char *argv[]) {
-  std::string cl(argv[0]);
-  if (argc!=3) {
-        std::cout << "Usage: " << cl << " <input.json> <output.wtns>\n";
-  } else {
-    std::string datfile = cl + ".dat";
-    std::string jsonfile(argv[1]);
-    std::string wtnsfile(argv[2]);
-  
-    // auto t_start = std::chrono::high_resolution_clock::now();
+extern "C"
+{
+  int gen_spend_witness_file(char const *datfile, char const *jsonfile, char *wtnsfile, char *errmsg)
+  {
+    try
+    {
+      Circom_Circuit *circuit = loadCircuit(std::string(datfile));
+      Circom_CalcWit *ctx = new Circom_CalcWit(circuit);
 
-   Circom_Circuit *circuit = loadCircuit(datfile);
+      loadJson(ctx, std::string(jsonfile));
+      if (ctx->getRemaingInputsToBeSet() != 0)
+      {
+        std::ostringstream errStrStream;
+        errStrStream << "Not all inputs have been set. Only " << get_main_input_signal_no() - ctx->getRemaingInputsToBeSet() << " out of " << get_main_input_signal_no() << std::endl;
+        throw std::runtime_error(errStrStream.str());
+      }
 
-   Circom_CalcWit *ctx = new Circom_CalcWit(circuit);
-  
-   loadJson(ctx, jsonfile);
-   if (ctx->getRemaingInputsToBeSet()!=0) {
-     std::cerr << "Not all inputs have been set. Only " << get_main_input_signal_no()-ctx->getRemaingInputsToBeSet() << " out of " << get_main_input_signal_no() << std::endl;
-     assert(false);
-   }
-   /*
-     for (uint i = 0; i<get_size_of_witness(); i++){
-     FrElement x;
-     ctx->getWitness(i, &x);
-     std::cout << i << ": " << Fr_element2str(&x) << std::endl;
-     }
-   */
-  
-   //auto t_mid = std::chrono::high_resolution_clock::now();
-   //std::cout << std::chrono::duration<double, std::milli>(t_mid-t_start).count()<<std::endl;
-
-   writeBinWitness(ctx,wtnsfile);
-  
-   //auto t_end = std::chrono::high_resolution_clock::now();
-   //std::cout << std::chrono::duration<double, std::milli>(t_end-t_mid).count()<<std::endl;
-
-  }  
+      writeBinWitness(ctx, std::string(wtnsfile));
+      return 0;
+      
+    }
+    catch (std::runtime_error e)
+    {
+      strcpy(errmsg, e.what());
+      return -1;
+    }
+  }
 }
 
