@@ -4,16 +4,16 @@
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
 pub struct RapidsnarkProof {
-    pub proof: Vec<u8>,
-    pub public: Vec<u8>,
+    pub proof: String,
+    pub public: String,
 }
 
 pub fn rapidsnark(zkey: &[u8], witness: &[u8]) -> Result<RapidsnarkProof, anyhow::Error> {
     unsafe {
-        let handle = std::ptr::null_mut();
+        let mut handle: *mut c_void = std::ptr::null_mut();
         let mut errmsg = vec![0i8; 1024];
         if groth16_prover_create(
-            handle,
+            (&mut handle) as *mut *mut c_void,
             zkey.as_ptr() as *const c_void,
             zkey.len() as u64,
             errmsg.as_mut_ptr(),
@@ -21,11 +21,11 @@ pub fn rapidsnark(zkey: &[u8], witness: &[u8]) -> Result<RapidsnarkProof, anyhow
         ) == PROVER_OK as i32
         {
             let mut proof_buffer = vec![0u8; 8192];
-            let mut proof_buffer_size = 0u64;
+            let mut proof_buffer_size = proof_buffer.len() as u64;
             let mut public_buffer = vec![0u8; 8192];
-            let mut public_buffer_size = 0u64;
-            groth16_prover_prove(
-                *handle,
+            let mut public_buffer_size = proof_buffer.len() as u64;
+            if groth16_prover_prove(
+                handle,
                 witness.as_ptr() as *const c_void,
                 witness.len() as u64,
                 proof_buffer.as_mut_ptr() as *mut i8,
@@ -34,12 +34,21 @@ pub fn rapidsnark(zkey: &[u8], witness: &[u8]) -> Result<RapidsnarkProof, anyhow
                 (&mut public_buffer_size) as *mut u64,
                 errmsg.as_mut_ptr(),
                 errmsg.len() as u64,
-            );
-            groth16_prover_destroy(*handle);
-            Ok(RapidsnarkProof {
-                proof: proof_buffer[..proof_buffer_size as usize].to_vec(),
-                public: proof_buffer[..public_buffer_size as usize].to_vec(),
-            })
+            ) == PROVER_OK as i32
+            {
+                let proof = CStr::from_ptr(proof_buffer.as_ptr() as *const i8)
+                    .to_str()?
+                    .to_string();
+                let public = CStr::from_ptr(public_buffer.as_ptr() as *const i8)
+                    .to_str()?
+                    .to_string();
+                groth16_prover_destroy(handle);
+                Ok(RapidsnarkProof { proof, public })
+            } else {
+                groth16_prover_destroy(handle);
+                let err_str = CStr::from_ptr(errmsg.as_ptr()).to_str()?.to_string();
+                Err(anyhow!(err_str))
+            }
         } else {
             let err_str = CStr::from_ptr(errmsg.as_ptr()).to_str()?.to_string();
             Err(anyhow!(err_str))
