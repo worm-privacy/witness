@@ -1,6 +1,17 @@
-use std::process::Command;
+use std::{env, path::PathBuf, process::Command};
 
 fn main() {
+    println!("cargo:rustc-link-search=./rapidsnark-linux-x86_64-v0.0.7/lib");
+    let bindings = bindgen::Builder::default()
+        .header("rapidsnark-linux-x86_64-v0.0.7/include/prover.h")
+        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
+        .generate()
+        .expect("Unable to generate bindings");
+    let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
+    bindings
+        .write_to_file(out_path.join("bindings.rs"))
+        .expect("Couldn't write bindings!");
+
     println!("cargo::rerun-if-changed=proof_of_burn/*");
     println!("cargo::rerun-if-changed=spend/*");
     Command::new("make")
