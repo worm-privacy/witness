@@ -16,14 +16,10 @@ fn main() {
 
     println!("cargo::rerun-if-changed=proof_of_burn/*");
     println!("cargo::rerun-if-changed=spend/*");
-    Command::new("make")
-        .current_dir("proof_of_burn")
-        .output()
-        .expect("Failed to make");
-    Command::new("make")
-        .current_dir("spend")
-        .output()
-        .expect("Failed to make");
+
+    make("proof_of_burn");
+    make("spend");
+
     println!("cargo:rustc-link-search=./proof_of_burn");
     println!("cargo:rustc-link-lib=static=proof_of_burn");
     println!("cargo:rustc-link-search=./spend");
@@ -31,4 +27,15 @@ fn main() {
     println!("cargo:rustc-link-search=/usr/lib/x86_64-linux-gnu");
     println!("cargo:rustc-link-lib=static=gmp");
     println!("cargo:rustc-link-lib=dylib=stdc++");
+}
+
+fn make(dir: &str) {
+    let status = Command::new("make")
+        .current_dir(dir)
+        .status()
+        .expect("Failed to make");
+
+    if !status.success() {
+        panic!("Failed to make {}", dir);
+    }
 }
