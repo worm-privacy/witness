@@ -11,7 +11,7 @@ pub struct RapidsnarkProof {
 pub fn rapidsnark(zkey: &[u8], witness: &[u8]) -> Result<RapidsnarkProof, anyhow::Error> {
     unsafe {
         let mut handle: *mut c_void = std::ptr::null_mut();
-        let mut errmsg = vec![0i8; 1024];
+        let mut errmsg = vec![libc::c_char::from(0); 1024];
         if groth16_prover_create(
             (&mut handle) as *mut *mut c_void,
             zkey.as_ptr() as *const c_void,
@@ -28,18 +28,18 @@ pub fn rapidsnark(zkey: &[u8], witness: &[u8]) -> Result<RapidsnarkProof, anyhow
                 handle,
                 witness.as_ptr() as *const c_void,
                 witness.len() as u64,
-                proof_buffer.as_mut_ptr() as *mut i8,
+                proof_buffer.as_mut_ptr() as *mut libc::c_char,
                 (&mut proof_buffer_size) as *mut u64,
-                public_buffer.as_mut_ptr() as *mut i8,
+                public_buffer.as_mut_ptr() as *mut libc::c_char,
                 (&mut public_buffer_size) as *mut u64,
                 errmsg.as_mut_ptr(),
                 errmsg.len() as u64,
             ) == PROVER_OK as i32
             {
-                let proof = CStr::from_ptr(proof_buffer.as_ptr() as *const i8)
+                let proof = CStr::from_ptr(proof_buffer.as_ptr() as *const libc::c_char)
                     .to_str()?
                     .to_string();
-                let public = CStr::from_ptr(public_buffer.as_ptr() as *const i8)
+                let public = CStr::from_ptr(public_buffer.as_ptr() as *const libc::c_char)
                     .to_str()?
                     .to_string();
                 groth16_prover_destroy(handle);
@@ -67,16 +67,16 @@ use anyhow::anyhow;
 
 unsafe extern "C" {
     fn gen_proof_of_burn_witness_file(
-        datfile: *const i8,
-        jsonfile: *const i8,
-        wtnsfile: *const i8,
-        errmsg: *mut i8,
+        datfile: *const libc::c_char,
+        jsonfile: *const libc::c_char,
+        wtnsfile: *const libc::c_char,
+        errmsg: *mut libc::c_char,
     ) -> i32;
     fn gen_spend_witness_file(
-        datfile: *const i8,
-        jsonfile: *const i8,
-        wtnsfile: *const i8,
-        errmsg: *mut i8,
+        datfile: *const libc::c_char,
+        jsonfile: *const libc::c_char,
+        wtnsfile: *const libc::c_char,
+        errmsg: *mut libc::c_char,
     ) -> i32;
 }
 
@@ -85,7 +85,7 @@ pub fn generate_proof_of_burn_witness_file<D: AsRef<Path>, I: AsRef<Path>, W: As
     input_file: I,
     witness_file: W,
 ) -> Result<(), anyhow::Error> {
-    let mut errmsg = [0i8; 512];
+    let mut errmsg = [libc::c_char::from(0); 512];
     let result = unsafe {
         gen_proof_of_burn_witness_file(
             CString::new(dat_file.as_ref().as_os_str().as_bytes())?.as_ptr(),
@@ -109,7 +109,7 @@ pub fn generate_spend_witness_file<D: AsRef<Path>, I: AsRef<Path>, W: AsRef<Path
     input_file: I,
     witness_file: W,
 ) -> Result<(), anyhow::Error> {
-    let mut errmsg = [0i8; 512];
+    let mut errmsg = [libc::c_char::from(0); 512];
     let result = unsafe {
         gen_spend_witness_file(
             CString::new(dat_file.as_ref().as_os_str().as_bytes())?.as_ptr(),
