@@ -4,7 +4,7 @@ fn main() {
     let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap();
     let rapidsnark_path = match target_arch.as_str() {
         "x86_64" => "rapidsnark-linux-x86_64-v0.0.7",
-        "arm" => "rapidsnark-arm64-v0.0.7",
+        "arm" => "rapidsnark-linux-arm64-v0.0.7",
         _ => panic!("Unknown architecture!"),
     };
 
