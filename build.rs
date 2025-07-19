@@ -1,9 +1,16 @@
 use std::{env, path::PathBuf, process::Command};
 
 fn main() {
-    println!("cargo:rustc-link-search=./rapidsnark-linux-x86_64-v0.0.7/lib");
+    let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap();
+    let rapidsnark_path = match target_arch.as_str() {
+        "x86_64" => "rapidsnark-linux-x86_64-v0.0.7",
+        "arm" => "rapidsnark-arm64-v0.0.7",
+        _ => panic!("Unknown architecture!"),
+    };
+
+    println!("cargo:rustc-link-search=./{}/lib", rapidsnark_path);
     let bindings = bindgen::Builder::default()
-        .header("rapidsnark-linux-x86_64-v0.0.7/include/prover.h")
+        .header(format!("{}/include/prover.h", rapidsnark_path))
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         .generate()
         .expect("Unable to generate bindings");
