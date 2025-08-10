@@ -27,6 +27,7 @@ Circom_Circuit* loadCircuit(std::string const &datFileName) {
 
     fd = open(datFileName.c_str(), O_RDONLY);
     if (fd == -1) {
+        std::cout << ".dat file not found: " << datFileName << "\n";
         throw std::system_error(errno, std::generic_category(), "open");
     }
     
@@ -188,15 +189,16 @@ void json2FrElements (json val, std::vector<FrElement> & vval){
 
 json::value_t check_type(std::string prefix, json in){
   if (not in.is_array()) {
-      return in.type();
+    if (in.is_number_integer() || in.is_number_unsigned() || in.is_string())
+      return json::value_t::number_integer;
+    else  return in.type();
     } else {
     if (in.size() == 0) return json::value_t::null;
     json::value_t t = check_type(prefix, in[0]);
     for (uint i = 1; i < in.size(); i++) {
       if (t != check_type(prefix, in[i])) {
-        std::ostringstream errStrStream;
-        errStrStream << "Types are not the same in the key " << prefix.c_str();
-        throw std::runtime_error(errStrStream.str());
+	fprintf(stderr, "Types are not the same in the key %s\n",prefix.c_str());
+	assert(false);
       }
     }
     return t;
@@ -331,7 +333,7 @@ void writeBinWitness(Circom_CalcWit *ctx, std::string wtnsFileName) {
     fclose(write_ptr);
 }
 
-extern "C"
+  extern "C"
 {
   int gen_spend_witness_file(char const *datfile, char const *jsonfile, char *wtnsfile, char *errmsg)
   {
