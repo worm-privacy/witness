@@ -14,7 +14,7 @@ using json = nlohmann::json;
 
 #include "calcwit.hpp"
 #include "circom.hpp"
-
+namespace ProofOfBurn {
 
 #define handle_error(msg) \
            do { perror(msg); exit(EXIT_FAILURE); } while (0)
@@ -330,9 +330,10 @@ void writeBinWitness(Circom_CalcWit *ctx, std::string wtnsFileName) {
     }
     fclose(write_ptr);
 }
-
+}
 extern "C"
 {
+  using namespace ProofOfBurn;
   int gen_proof_of_burn_witness_file(char const *datfile, char const *jsonfile, char *wtnsfile, char *errmsg)
   {
     try

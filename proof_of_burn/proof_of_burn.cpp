@@ -3,6 +3,7 @@
 #include <assert.h>
 #include "circom.hpp"
 #include "calcwit.hpp"
+namespace ProofOfBurn {
 void Num2Bits_0_create(uint soffset,uint coffset,Circom_CalcWit* ctx,std::string componentName,uint componentFather);
 void Num2Bits_0_run(uint ctx_index,Circom_CalcWit* ctx);
 void AssertBits_1_create(uint soffset,uint coffset,Circom_CalcWit* ctx,std::string componentName,uint componentFather);
@@ -305935,3 +305936,4 @@ ProofOfBurn_351_create(1,0,ctx,"main",0);
 ProofOfBurn_351_run(0,ctx);
 }
 
+}

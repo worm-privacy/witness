@@ -7,8 +7,8 @@
 #include <condition_variable>
 #include <thread>
 
-#include "fr.hpp"
-
+#include "../fr/fr.hpp"
+namespace Spend {
 typedef unsigned long long u64;
 typedef uint32_t u32;
 typedef uint8_t u8;
@@ -85,5 +85,5 @@ uint get_size_of_witness();
 uint get_size_of_constants();
 uint get_size_of_io_map();
 uint get_size_of_bus_field_map();
-
+}
 #endif  // __CIRCOM_H
