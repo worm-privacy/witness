@@ -66,6 +66,5 @@ private:
 };
 
 typedef void (*Circom_TemplateFunction)(uint __cIdx, Circom_CalcWit* __ctx); 
-
-#endif // CIRCOM_CALCWIT_H
 }
+#endif // CIRCOM_CALCWIT_H

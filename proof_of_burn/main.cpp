@@ -14,10 +14,11 @@ using json = nlohmann::json;
 
 #include "calcwit.hpp"
 #include "circom.hpp"
-namespace ProofOfBurn {
-
 #define handle_error(msg) \
            do { perror(msg); exit(EXIT_FAILURE); } while (0)
+namespace ProofOfBurn {
+
+
 
 Circom_Circuit* loadCircuit(std::string const &datFileName) {
     Circom_Circuit *circuit = new Circom_Circuit;
@@ -27,6 +28,7 @@ Circom_Circuit* loadCircuit(std::string const &datFileName) {
 
     fd = open(datFileName.c_str(), O_RDONLY);
     if (fd == -1) {
+        std::cout << ".dat file not found: " << datFileName << "\n";
         throw std::system_error(errno, std::generic_category(), "open");
     }
     
@@ -194,9 +196,8 @@ json::value_t check_type(std::string prefix, json in){
     json::value_t t = check_type(prefix, in[0]);
     for (uint i = 1; i < in.size(); i++) {
       if (t != check_type(prefix, in[i])) {
-	      std::ostringstream errStrStream;
-        errStrStream << "Types are not the same in the key " << prefix.c_str();
-        throw std::runtime_error(errStrStream.str());
+	fprintf(stderr, "Types are not the same in the the key %s\n",prefix.c_str());
+	// assert(false);
       }
     }
     return t;
@@ -340,7 +341,6 @@ extern "C"
     {
       Circom_Circuit *circuit = loadCircuit(std::string(datfile));
       Circom_CalcWit *ctx = new Circom_CalcWit(circuit);
-
       loadJson(ctx, std::string(jsonfile));
       if (ctx->getRemaingInputsToBeSet() != 0)
       {
@@ -358,5 +358,5 @@ extern "C"
       strcpy(errmsg, e.what());
       return -1;
     }
-  }
+  }  
 }
