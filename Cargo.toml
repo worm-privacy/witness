@@ -8,7 +8,8 @@ include = [
     "Cargo.toml",
     "spend/**",
     "proof_of_burn/**",
-    "src/**"
+    "src/**",
+    "fr/**"
 ]
 
 [dependencies]

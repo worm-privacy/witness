@@ -3,7 +3,8 @@ proof_of_burn/*.a
 spend/*.a
 proof_of_burn/proof_of_burn
 spend/spend
-
+libcircuits.a
 # Added by cargo
 
 /target
+Cargo.lock
