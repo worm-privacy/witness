@@ -9,6 +9,7 @@ include = [
     "spend/**",
     "proof_of_burn/**",
     "src/**",
+    "fr/**",
     "libcircuits.a"
 ]
 
