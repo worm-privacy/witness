@@ -3,7 +3,8 @@
 #include <assert.h>
 #include "circom.hpp"
 #include "calcwit.hpp"
-namespace Spend{
+namespace spend { // NAMESPACE BEGIN
+
 void Num2Bits_0_create(uint soffset,uint coffset,Circom_CalcWit* ctx,std::string componentName,uint componentFather);
 void Num2Bits_0_run(uint ctx_index,Circom_CalcWit* ctx);
 void AssertBits_1_create(uint soffset,uint coffset,Circom_CalcWit* ctx,std::string componentName,uint componentFather);
@@ -325914,4 +325915,5 @@ Spend_278_create(1,0,ctx,"main",0);
 Spend_278_run(0,ctx);
 }
 
-}
+
+} // NAMESPACE END

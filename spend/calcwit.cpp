@@ -2,7 +2,9 @@
 #include <sstream>
 #include <assert.h>
 #include "calcwit.hpp"
-namespace Spend {
+namespace spend { // NAMESPACE BEGIN
+
+
 extern void run(Circom_CalcWit* ctx);
 
 std::string int_to_hex( u64 i )
@@ -125,4 +127,5 @@ std::string Circom_CalcWit::generate_position_array(uint* dimensions, uint size_
   return positions;
 }
 
-}
+
+} // NAMESPACE END

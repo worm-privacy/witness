@@ -9,7 +9,9 @@
 
 #include "circom.hpp"
 #include "../fr/fr.hpp"
-namespace ProofOfBurn {
+namespace proof_of_burn { // NAMESPACE BEGIN
+
+
 #define NMUTEXES 32 //512
 
 u64 fnv1a(std::string s);
@@ -66,5 +68,7 @@ private:
 };
 
 typedef void (*Circom_TemplateFunction)(uint __cIdx, Circom_CalcWit* __ctx); 
-}
+
+
+} // NAMESPACE END
 #endif // CIRCOM_CALCWIT_H

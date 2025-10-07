@@ -14,8 +14,10 @@ using json = nlohmann::json;
 
 #include "calcwit.hpp"
 #include "circom.hpp"
+namespace spend { // NAMESPACE BEGIN
 
-namespace Spend {
+
+
 #define handle_error(msg) \
            do { perror(msg); exit(EXIT_FAILURE); } while (0)
 
@@ -330,35 +332,36 @@ void writeBinWitness(Circom_CalcWit *ctx, std::string wtnsFileName) {
     }
     fclose(write_ptr);
 }
-}
 
-extern "C"
-{
-  using namespace Spend;
-  int gen_spend_witness_file(char const *datfile, char const *jsonfile, char *wtnsfile, char *errmsg)
-  {
-    try
-    {
-      Circom_Circuit *circuit = loadCircuit(std::string(datfile));
-   Circom_CalcWit *ctx = new Circom_CalcWit(circuit);
-  
-      loadJson(ctx, std::string(jsonfile));
-      if (ctx->getRemaingInputsToBeSet() != 0)
-      {
-        std::ostringstream errStrStream;
-        errStrStream << "Not all inputs have been set. Only " << get_main_input_signal_no() - ctx->getRemaingInputsToBeSet() << " out of " << get_main_input_signal_no() << std::endl;
-        throw std::runtime_error(errStrStream.str());
-      }
 
-      writeBinWitness(ctx, std::string(wtnsfile));
-      return 0;
-      
-    }
-    catch (std::runtime_error e)
-    {
-      strcpy(errmsg, e.what());
-      return -1;
-    }
-  }  
-}
+} // NAMESPACE END
 
+        extern "C"
+        {
+        using namespace spend;
+        int gen_spend_witness_file(char const *datfile, char const *jsonfile, char *wtnsfile, char *errmsg)
+        {
+            try
+            {
+            Circom_Circuit *circuit = loadCircuit(std::string(datfile));
+        Circom_CalcWit *ctx = new Circom_CalcWit(circuit);
+        
+            loadJson(ctx, std::string(jsonfile));
+            if (ctx->getRemaingInputsToBeSet() != 0)
+            {
+                std::ostringstream errStrStream;
+                errStrStream << "Not all inputs have been set. Only " << get_main_input_signal_no() - ctx->getRemaingInputsToBeSet() << " out of " << get_main_input_signal_no() << std::endl;
+                throw std::runtime_error(errStrStream.str());
+            }
+
+            writeBinWitness(ctx, std::string(wtnsfile));
+            return 0;
+            
+            }
+            catch (std::runtime_error e)
+            {
+            strcpy(errmsg, e.what());
+            return -1;
+            }
+        }
+        }

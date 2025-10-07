@@ -4,7 +4,9 @@ spend/*.a
 proof_of_burn/proof_of_burn
 spend/spend
 libcircuits.a
-# Added by cargo
+*_witness_gen.tar.gz
+*_witness_gen/
 
+# Added by cargo
 /target
 Cargo.lock
